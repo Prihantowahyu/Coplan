@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentFlow - Free & Powerful Social Media Content Planner</title>
+    <meta name="description" content="Aplikasi kalender konten, kanban pipeline, bank ide, dan copywriting helper gratis untuk media sosial.">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SortableJS for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/app.css">
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col bg-slate-50">
+
+    <!-- HIDDEN INPUT FOR JSON RESTORE -->
+    <input type="file" id="importJsonInput" accept=".json" class="hidden">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+                        <i class="fas fa-layer-group text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-xl tracking-tight bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-600 bg-clip-text text-transparent">ContentFlow</span>
+                            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Open Source</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-medium">Free Social Media Planner & Pipeline</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex items-center p-1 bg-slate-100/80 rounded-xl border border-slate-200/60 text-xs font-semibold">
+                    <button data-tab="dashboard" class="nav-tab px-3.5 py-2 rounded-lg bg-indigo-600 text-white shadow-xs transition flex items-center gap-1.5">
+                        <i class="fas fa-chart-pie text-xs"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button data-tab="calendar" class="nav-tab px-3.5 py-2 rounded-lg text-slate-600 hover:bg-slate-200/70 transition flex items-center gap-1.5">
+                        <i class="far fa-calendar-alt text-xs"></i>
+                        <span>Kalender</span>
+                    </button>
+                    <button data-tab="kanban" class="nav-tab px-3.5 py-2 rounded-lg text-slate-600 hover:bg-slate-200/70 transition flex items-center gap-1.5">
+                        <i class="fas fa-columns text-xs"></i>
+                        <span>Kanban Board</span>
+                    </button>
+                    <button data-tab="table" class="nav-tab px-3.5 py-2 rounded-lg text-slate-600 hover:bg-slate-200/70 transition flex items-center gap-1.5">
+                        <i class="fas fa-list text-xs"></i>
+                        <span>Daftar Konten</span>
+                    </button>
+                    <button data-tab="ideas" class="nav-tab px-3.5 py-2 rounded-lg text-slate-600 hover:bg-slate-200/70 transition flex items-center gap-1.5">
+                        <i class="far fa-lightbulb text-xs"></i>
+                        <span>Bank Ide</span>
+                    </button>
+                    <button data-tab="copywriting" class="nav-tab px-3.5 py-2 rounded-lg text-slate-600 hover:bg-slate-200/70 transition flex items-center gap-1.5">
+                        <i class="fas fa-wand-magic-sparkles text-xs"></i>
+                        <span>Hooks & Copy</span>
+                    </button>
+                </nav>
+
+                <!-- Actions & Storage Badge -->
+                <div class="flex items-center gap-2">
+                    <!-- Storage Mode Status Badge -->
+                    <div id="storageModeBadge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Memuat...
+                    </div>
+
+                    <!-- Data Backup & Tools Dropdown -->
+                    <div class="relative group">
+                        <button class="px-2.5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition shadow-xs flex items-center gap-1.5" title="Cadangan Data">
+                            <i class="fas fa-database text-slate-400"></i>
+                            <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+                        </button>
+                        <div class="absolute right-0 mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 hidden group-hover:block z-50 text-xs">
+                            <a href="javascript:void(0)" onclick="App.exportCSV()" class="block px-3 py-2 text-slate-700 hover:bg-slate-50">
+                                <i class="fas fa-file-csv mr-2 text-emerald-600"></i> Export ke CSV
+                            </a>
+                            <a href="javascript:void(0)" onclick="App.exportJSON()" class="block px-3 py-2 text-slate-700 hover:bg-slate-50">
+                                <i class="fas fa-download mr-2 text-indigo-600"></i> Backup Data (JSON)
+                            </a>
+                            <a href="javascript:void(0)" onclick="App.triggerImportJSON()" class="block px-3 py-2 text-slate-700 hover:bg-slate-50">
+                                <i class="fas fa-upload mr-2 text-amber-600"></i> Pulihkan Data (JSON)
+                            </a>
+                            <hr class="my-1 border-slate-100">
+                            <a href="javascript:void(0)" onclick="App.resetSampleData()" class="block px-3 py-2 text-slate-500 hover:bg-slate-50">
+                                <i class="fas fa-redo-alt mr-2 text-slate-400"></i> Reset Data Contoh
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- + New Post Button -->
+                    <button onclick="App.openCreateModal()" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs shadow-indigo-200 transition active:scale-95">
+                        <i class="fas fa-plus"></i>
+                        <span>+ Konten</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Sub-bar -->
+        <div class="md:hidden flex overflow-x-auto px-4 py-2 border-t border-slate-100 gap-1 bg-white">
+            <button data-tab="dashboard" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white">Dashboard</button>
+            <button data-tab="calendar" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Kalender</button>
+            <button data-tab="kanban" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Kanban</button>
+            <button data-tab="table" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Daftar</button>
+            <button data-tab="ideas" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Ide</button>
+            <button data-tab="copywriting" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Hooks</button>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+
+        <!-- ============================================================== -->
+        <!-- TAB 1: DASHBOARD OVERVIEW -->
+        <!-- ============================================================== -->
+        <div id="view-dashboard" class="tab-view space-y-6">
+            <!-- Top Metric Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Konten</span>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-slate-800" id="statTotalPosts">0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Dalam semua pipeline</div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Terjadwal</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+                            <i class="far fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-emerald-600" id="statScheduled">0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Siap dipublikasikan</div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Published</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-blue-600" id="statPublished">0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Sudah live di sosial media</div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Reach</span>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-slate-800" id="statTotalReach">0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Estimasi jangkauan audiens</div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs col-span-2 lg:col-span-1">
+                    <div class="flex items-center justify-between text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Engagement</span>
+                        <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center text-sm">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-slate-800" id="statTotalEngage">0</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Likes + Komen + Share</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Platform Distribution Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center justify-between">
+                        <span>Distribusi Platform</span>
+                        <i class="fas fa-mobile-alt text-slate-400"></i>
+                    </h3>
+                    <div class="h-60 relative flex items-center justify-center">
+                        <canvas id="chartPlatform"></canvas>
+                    </div>
+                </div>
+
+                <!-- Pillar Distribution Chart -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs lg:col-span-2">
+                    <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center justify-between">
+                        <span>Distribusi Pilar Konten</span>
+                        <i class="fas fa-chart-column text-slate-400"></i>
+                    </h3>
+                    <div class="h-60 relative">
+                        <canvas id="chartPillar"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lists Section: Upcoming & Recent Published -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Upcoming Schedule -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <h3 class="font-bold text-slate-800 text-sm">Jadwal Konten Mendatang (7 Hari)</h3>
+                        </div>
+                        <button onclick="App.switchTab('calendar')" class="text-xs font-semibold text-indigo-600 hover:underline">Lihat Kalender &rarr;</button>
+                    </div>
+                    <div id="upcomingList" class="space-y-2.5">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Recent Published Performance -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-rocket text-indigo-500"></i>
+                            <h3 class="font-bold text-slate-800 text-sm">Performa Konten Terakhir</h3>
+                        </div>
+                        <button onclick="App.switchTab('table')" class="text-xs font-semibold text-indigo-600 hover:underline">Semua Konten &rarr;</button>
+                    </div>
+                    <div id="recentPublishedList" class="space-y-2.5">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 2: KALENDER KONTEN (CALENDAR) -->
+        <!-- ============================================================== -->
+        <div id="view-calendar" class="tab-view hidden space-y-4">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+                <!-- Calendar Controls Header -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <h2 id="calendarMonthYear" class="text-xl font-black text-slate-800 min-w-44"></h2>
+                        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                            <button onclick="App.calendarPrev()" class="p-1.5 px-2 hover:bg-white rounded-lg transition text-slate-600" title="Bulan Sebelumnya">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button onclick="App.calendarToday()" class="px-3 py-1 font-semibold hover:bg-white rounded-lg transition text-slate-700">
+                                Hari Ini
+                            </button>
+                            <button onclick="App.calendarNext()" class="p-1.5 px-2 hover:bg-white rounded-lg transition text-slate-600" title="Bulan Berikutnya">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Platform Color Legend -->
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] font-medium text-slate-600">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-pink-500"></span> Instagram</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-black"></span> TikTok</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> YouTube</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> LinkedIn</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-800"></span> X/Twitter</span>
+                    </div>
+                </div>
+
+                <!-- Days of Week Header -->
+                <div class="grid grid-cols-7 border-t border-l border-r border-slate-200 text-center font-bold text-xs text-slate-500 bg-slate-50 rounded-t-xl overflow-hidden">
+                    <div class="py-2.5 text-red-500">Minggu</div>
+                    <div class="py-2.5">Senin</div>
+                    <div class="py-2.5">Selasa</div>
+                    <div class="py-2.5">Rabu</div>
+                    <div class="py-2.5">Kamis</div>
+                    <div class="py-2.5">Jumat</div>
+                    <div class="py-2.5 text-indigo-600">Sabtu</div>
+                </div>
+
+                <!-- Calendar Grid (35 or 42 cells) -->
+                <div id="calendarGrid" class="grid grid-cols-7 border-l border-t border-slate-200 rounded-b-xl overflow-hidden bg-slate-200 gap-[1px]">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 3: KANBAN BOARD (PIPELINE) -->
+        <!-- ============================================================== -->
+        <div id="view-kanban" class="tab-view hidden space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Pipeline Produksi Konten</h2>
+                    <p class="text-xs text-slate-500">Tarik dan lepas kartu (drag & drop) untuk memindahkan tahap workflow konten.</p>
+                </div>
+                <button onclick="App.openCreateModal()" class="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xs flex items-center gap-1.5">
+                    <i class="fas fa-plus"></i> Tambah Kartu
+                </button>
+            </div>
+
+            <!-- Kanban Columns Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 overflow-x-auto pb-4">
+                <!-- Column 1: Ide -->
+                <div class="bg-slate-100/70 p-3 rounded-2xl border border-slate-200 flex flex-col min-w-[260px]">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                            <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">💡 Ide / Konsep</span>
+                        </div>
+                        <span id="kanban-count-ide" class="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-ide" class="kanban-dropzone flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+
+                <!-- Column 2: Scripting -->
+                <div class="bg-slate-100/70 p-3 rounded-2xl border border-slate-200 flex flex-col min-w-[260px]">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                            <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">✍️ Scripting</span>
+                        </div>
+                        <span id="kanban-count-scripting" class="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-scripting" class="kanban-dropzone flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+
+                <!-- Column 3: Produksi -->
+                <div class="bg-slate-100/70 p-3 rounded-2xl border border-slate-200 flex flex-col min-w-[260px]">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">🎨 Produksi</span>
+                        </div>
+                        <span id="kanban-count-produksi" class="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-produksi" class="kanban-dropzone flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+
+                <!-- Column 4: Review -->
+                <div class="bg-slate-100/70 p-3 rounded-2xl border border-slate-200 flex flex-col min-w-[260px]">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                            <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">👀 Review</span>
+                        </div>
+                        <span id="kanban-count-review" class="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-review" class="kanban-dropzone flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+
+                <!-- Column 5: Terjadwal -->
+                <div class="bg-slate-100/70 p-3 rounded-2xl border border-slate-200 flex flex-col min-w-[260px]">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">⏰ Terjadwal</span>
+                        </div>
+                        <span id="kanban-count-terjadwal" class="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-terjadwal" class="kanban-dropzone flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+
+                <!-- Column 6: Published -->
+                <div class="bg-slate-100/70 p-3 rounded-2xl border border-slate-200 flex flex-col min-w-[260px]">
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-green-600"></span>
+                            <span class="font-bold text-xs text-slate-700 uppercase tracking-wider">✅ Published</span>
+                        </div>
+                        <span id="kanban-count-published" class="text-xs font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">0</span>
+                    </div>
+                    <div id="kanban-col-published" class="kanban-dropzone flex-1 overflow-y-auto space-y-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 4: TABLE VIEW (DAFTAR KONTEN) -->
+        <!-- ============================================================== -->
+        <div id="view-table" class="tab-view hidden space-y-4">
+            <!-- Filter Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+                <div class="relative w-full md:w-80">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                        <i class="fas fa-search text-xs"></i>
+                    </span>
+                    <input type="text" id="tableSearch" placeholder="Cari judul, hashtag, PIC..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <!-- Platform Filter -->
+                    <select id="filterPlatform" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none">
+                        <option value="all">Semua Platform</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="twitter">X / Twitter</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+
+                    <!-- Status Filter -->
+                    <select id="filterStatus" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none">
+                        <option value="all">Semua Status</option>
+                        <option value="ide">Ide</option>
+                        <option value="scripting">Scripting</option>
+                        <option value="produksi">Produksi</option>
+                        <option value="review">Review</option>
+                        <option value="terjadwal">Terjadwal</option>
+                        <option value="published">Published</option>
+                    </select>
+
+                    <!-- Pillar Filter -->
+                    <select id="filterPillar" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none">
+                        <option value="all">Semua Pilar</option>
+                        <option value="edukasi">Edukasi</option>
+                        <option value="tips_trik">Tips & Trik</option>
+                        <option value="promosi">Promosi</option>
+                        <option value="behind_the_scene">Behind The Scene</option>
+                        <option value="hiburan">Hiburan</option>
+                        <option value="inspirasi">Inspirasi</option>
+                    </select>
+
+                    <span id="tableCount" class="text-xs font-bold text-slate-500 px-2"></span>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200 font-bold">
+                            <tr>
+                                <th class="px-4 py-3.5">Platform</th>
+                                <th class="px-4 py-3.5">Judul & Hook</th>
+                                <th class="px-4 py-3.5">Format</th>
+                                <th class="px-4 py-3.5">Pilar Konten</th>
+                                <th class="px-4 py-3.5">Jadwal & PIC</th>
+                                <th class="px-4 py-3.5">Status</th>
+                                <th class="px-4 py-3.5 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 5: BANK IDE (IDEA VAULT) -->
+        <!-- ============================================================== -->
+        <div id="view-ideas" class="tab-view hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Bank Ide Konten</h2>
+                    <p class="text-xs text-slate-500">Koleksi ide spontan untuk dieksekusi. Klik "Jadikan Konten" untuk memindahkannya ke alur kerja.</p>
+                </div>
+                <button onclick="App.openModal('ideaModal')" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs flex items-center gap-1.5">
+                    <i class="fas fa-plus"></i> + Tambah Ide Baru
+                </button>
+            </div>
+
+            <div id="ideasList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- TAB 6: HOOKS & COPYWRITING ASSISTANT -->
+        <!-- ============================================================== -->
+        <div id="view-copywriting" class="tab-view hidden space-y-6">
+            <!-- Header Intro -->
+            <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <span class="px-2.5 py-1 rounded-full bg-white/20 text-xs font-semibold backdrop-blur-sm">⚡ Content Creator Supercharger</span>
+                    <h2 class="text-2xl font-black mt-2 tracking-tight">Koleksi Formula Hook & Framework Caption Viral</h2>
+                    <p class="text-xs text-indigo-200 mt-1 max-w-xl">3 detik pertama menentukan 90% kesuksesan postingan media sosial. Salin template hook di bawah dan gunakan struktur caption terbukti untuk melonjakkan retensi dan engagement.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="App.openCreateModal()" class="px-4 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs hover:bg-indigo-50 shadow-md">
+                        + Terapkan ke Konten Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Framework Caption Generators -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- AIDA Framework -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs mb-3">AIDA</div>
+                        <h3 class="font-bold text-slate-800 text-sm">Formula AIDA</h3>
+                        <p class="text-xs text-slate-500 mt-1">Attention &rarr; Interest &rarr; Desire &rarr; Action. Sangat cocok untuk konten promosi produk, kursus, dan pengumuman fitur baru.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                        <button onclick="App.copyHookToClipboard('[ATTENTION - Kalimat Pembuka Menarik]: \n\n[INTEREST - Fakta / Cerita yang relevan]: \n\n[DESIRE - Solusi / Manfaat utama yang didapat]: \n\n[ACTION - Call to Action]: \nKomentar di bawah jika kamu setuju!')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                            <i class="far fa-copy mr-1"></i> Salin Struktur
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PAS Framework -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center font-black text-xs mb-3">PAS</div>
+                        <h3 class="font-bold text-slate-800 text-sm">Formula PAS</h3>
+                        <p class="text-xs text-slate-500 mt-1">Problem &rarr; Agitate &rarr; Solution. Paling ampuh untuk konten edukasi dan carousel solusi masalah audiens.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                        <button onclick="App.copyHookToClipboard('[PROBLEM - Masalah yang sering dihadapi]: \n\n[AGITATE - Kenapa masalah ini makin buruk jika dibiarkan]: \n\n[SOLUTION - Cara kami / tips mengatasi masalah ini]: \n\n[CTA]: Simpan postingan ini agar tidak lupa!')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                            <i class="far fa-copy mr-1"></i> Salin Struktur
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BAB Framework -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                    <div>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs mb-3">BAB</div>
+                        <h3 class="font-bold text-slate-800 text-sm">Formula BAB</h3>
+                        <p class="text-xs text-slate-500 mt-1">Before &rarr; After &rarr; Bridge. Cocok untuk studi kasus bisnis, transformasi, behind the scenes, dan testimoni.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+                        <button onclick="App.copyHookToClipboard('[BEFORE - Kondisi sulit sebelum tahu trik ini]: \n\n[AFTER - Hasil luar biasa yang berhasil dicapai]: \n\n[BRIDGE - Jembatan langkah demi langkah menuju hasil tersebut]: ')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                            <i class="far fa-copy mr-1"></i> Salin Struktur
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Viral Hooks Library -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800 text-sm">Koleksi 13 Hook Siap Pakai (1-Click Copy)</h3>
+                    <span class="text-xs text-slate-400">Klik "Salin" untuk menyalin ke clipboard</span>
+                </div>
+                <div id="hooksList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+
+            <!-- Preset Hashtags by Niche -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+                <h3 class="font-bold text-slate-800 text-sm mb-3">Preset Paket Hashtags Berdasarkan Niche</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="font-bold text-xs text-slate-700 mb-1">🏢 Bisnis & Marketing</div>
+                        <div class="text-[11px] text-slate-500 line-clamp-2">#bisnisonline #strategibisnis #marketingdigital #b2bmarketing #tipsbisnis</div>
+                        <button onclick="App.copyHookToClipboard('#bisnisonline #strategibisnis #marketingdigital #b2bmarketing #tipsbisnis #entrepreneurindonesia #omsetnaik #jualanonline')" class="mt-2 text-xs font-semibold text-indigo-600 hover:underline">Salin Hashtags</button>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="font-bold text-xs text-slate-700 mb-1">💡 Edukasi & Pengetahuan</div>
+                        <div class="text-[11px] text-slate-500 line-clamp-2">#belajaronline #tipsdantrik #edukasi #wawasandigital #belajargratis</div>
+                        <button onclick="App.copyHookToClipboard('#belajaronline #tipsdantrik #edukasi #wawasandigital #belajargratis #informasiterkini #infounik #pengetahuan')" class="mt-2 text-xs font-semibold text-indigo-600 hover:underline">Salin Hashtags</button>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="font-bold text-xs text-slate-700 mb-1">🎬 Content Creator</div>
+                        <div class="text-[11px] text-slate-500 line-clamp-2">#contentcreator #tipsngonten #reelsindonesia #tiktokindonesia #creatorjourney</div>
+                        <button onclick="App.copyHookToClipboard('#contentcreator #tipsngonten #reelsindonesia #tiktokindonesia #videocreator #creatorjourney #socialmediatips')" class="mt-2 text-xs font-semibold text-indigo-600 hover:underline">Salin Hashtags</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 1: FORM TAMBAH & EDIT KONTEN -->
+    <!-- ============================================================== -->
+    <div id="postModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl my-auto">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 id="modalTitle" class="font-extrabold text-base text-slate-800">Buat Konten Baru</h3>
+                <button type="button" onclick="App.closeModal('postModal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="postForm" class="flex-1 overflow-y-auto p-5 space-y-4">
+                <input type="hidden" id="postId" name="id">
+
+                <!-- Judul Topik -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Judul / Topik Konten <span class="text-red-500">*</span></label>
+                    <input type="text" id="formTitle" name="title" required placeholder="Contoh: 5 Kesalahan Fatal Content Creator Pemula" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium">
+                </div>
+
+                <!-- Platform, Format, Pilar Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Platform</label>
+                        <select id="formPlatform" name="platform" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="instagram">Instagram</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="twitter">X / Twitter</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="threads">Threads</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Format</label>
+                        <select id="formFormat" name="format" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="reels">Reels / Shorts (9:16)</option>
+                            <option value="carousel">Carousel (Multi-slide)</option>
+                            <option value="single_image">Single Image / Feed</option>
+                            <option value="story">Story</option>
+                            <option value="thread">Thread / Text</option>
+                            <option value="video_panjang">Video Panjang (16:9)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilar Konten</label>
+                        <select id="formPillar" name="pillar" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="edukasi">Edukasi</option>
+                            <option value="tips_trik">Tips & Trik</option>
+                            <option value="promosi">Promosi & Jualan</option>
+                            <option value="behind_the_scene">Behind The Scene</option>
+                            <option value="hiburan">Hiburan & Meme</option>
+                            <option value="inspirasi">Inspirasi & Cerita</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Status & Jadwal Publikasi -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Status Alur Kerja</label>
+                        <select id="formStatus" name="status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="ide">💡 Ide / Konsep</option>
+                            <option value="scripting">✍️ Scripting</option>
+                            <option value="produksi">🎨 Produksi (Desain/Video)</option>
+                            <option value="review">👀 Review & Approval</option>
+                            <option value="terjadwal">⏰ Siap Tayang (Terjadwal)</option>
+                            <option value="published">✅ Sudah Tayang (Published)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jadwal Publikasi</label>
+                        <input type="datetime-local" id="formScheduled" name="scheduled_at" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Hook 3 Detik Pertama -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-700">Hook 3 Detik Pertama (Pancingan Utama)</label>
+                        <span class="text-[10px] text-indigo-600 font-semibold cursor-pointer" onclick="App.switchTab('copywriting'); App.closeModal('postModal');">Lihat Inspirasi Hook &rarr;</span>
+                    </div>
+                    <input type="text" id="formHook" name="hook" placeholder='Contoh: "Stop scroll kalau kamu mau omset naik 2x lipat bulan ini!"' class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Caption / Copywriting Editor -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-700">Caption / Copywriting</label>
+                        <div class="flex items-center gap-1.5 text-[10px]">
+                            <span class="text-slate-400">Formula:</span>
+                            <button type="button" onclick="App.applyFormula('aida')" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold">AIDA</button>
+                            <button type="button" onclick="App.applyFormula('pas')" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold">PAS</button>
+                            <button type="button" onclick="App.applyFormula('bab')" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold">BAB</button>
+                        </div>
+                    </div>
+                    <textarea id="formCaption" name="caption" rows="4" placeholder="Tuliskan isi caption lengkap di sini..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"></textarea>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 mt-1">
+                        <span id="charCountDisplay">0 karakter</span>
+                        <span id="hashCountDisplay">0 hashtags</span>
+                    </div>
+                </div>
+
+                <!-- Call to Action (CTA) & Hashtags -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Call to Action (CTA)</label>
+                        <input type="text" id="formCta" name="cta" placeholder="Contoh: Klik link di bio untuk order!" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-slate-700">Hashtags</label>
+                            <div class="flex gap-1 text-[10px]">
+                                <button type="button" onclick="App.insertHashtags('bisnis')" class="text-indigo-600 hover:underline">+Bisnis</button>
+                                <button type="button" onclick="App.insertHashtags('kreator')" class="text-indigo-600 hover:underline">+Kreator</button>
+                            </div>
+                        </div>
+                        <input type="text" id="formHashtags" name="hashtags" placeholder="#tips #bisnis #socialmedia" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- PIC & Media Upload -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Penanggung Jawab (PIC)</label>
+                        <input type="text" id="formPic" name="pic" placeholder="Contoh: Sarah (Creator), Rian (Desainer)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Lampiran Media / Mockup</label>
+                        <input type="file" id="formMedia" name="media" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                </div>
+
+                <!-- Media Preview container (if exists) -->
+                <div id="mediaPreviewContainer" class="hidden p-2 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img id="mediaPreviewImg" src="" class="w-12 h-12 object-cover rounded-lg border border-slate-200">
+                        <span class="text-xs text-slate-600 font-medium">Gambar saat ini</span>
+                    </div>
+                    <label class="flex items-center gap-1.5 text-xs text-red-600 cursor-pointer">
+                        <input type="checkbox" name="remove_media" value="1" class="rounded text-red-600">
+                        <span>Hapus Gambar</span>
+                    </label>
+                </div>
+
+                <!-- Catatan Visual / Audio Brief -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Visual / Audio / Storyboard</label>
+                    <textarea id="formNotes" name="notes" rows="2" placeholder="Catatan B-Roll, sound effect, instruksi desainer grafis..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Input Metrik Khusus Published -->
+                <div id="metricsSection" class="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 space-y-3" style="display: none;">
+                    <div class="font-bold text-xs text-emerald-800 flex items-center gap-1.5">
+                        <i class="fas fa-chart-line"></i> Input Hasil Metrik Konten (Setelah Publish)
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div>
+                            <label class="text-[10px] font-semibold text-slate-600">Likes</label>
+                            <input type="number" id="formLikes" name="likes" value="0" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-semibold text-slate-600">Komentar</label>
+                            <input type="number" id="formComments" name="comments" value="0" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-semibold text-slate-600">Shares</label>
+                            <input type="number" id="formShares" name="shares" value="0" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-semibold text-slate-600">Total Reach</label>
+                            <input type="number" id="formReach" name="reach" value="0" class="w-full p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer Actions -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                    <button type="button" onclick="App.closeModal('postModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
+                        Simpan Konten
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: SIMULASI PREVIEW MOCKUP SOCIAL MEDIA -->
+    <!-- ============================================================== -->
+    <div id="previewModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl border border-slate-200 max-w-4xl w-full flex flex-col md:flex-row shadow-2xl overflow-hidden my-auto max-h-[92vh]">
+            <!-- Phone Simulation Area -->
+            <div class="bg-slate-900 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-800">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div id="phoneMockupBody" class="h-full">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Panel Area -->
+            <div class="flex-1 p-6 flex flex-col justify-between overflow-y-auto bg-white">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span id="prevPlatformBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
+                        <button onclick="App.closeModal('previewModal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <h3 id="prevTitle" class="text-xl font-extrabold text-slate-800 leading-snug"></h3>
+                        <div class="flex items-center gap-2 mt-2 text-xs text-slate-500">
+                            <span id="prevFormat" class="px-2 py-0.5 rounded bg-slate-100 font-medium"></span>
+                            <span>•</span>
+                            <span id="prevPillar" class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium"></span>
+                        </div>
+                    </div>
+
+                    <!-- Hook Box -->
+                    <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-200">
+                        <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider">🎯 Hook 3 Detik:</span>
+                        <div id="prevHook" class="font-semibold text-xs text-amber-950 mt-1 italic"></div>
+                    </div>
+
+                    <!-- Meta Info Grid -->
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Jadwal Tayang</span>
+                            <span id="prevScheduled" class="font-semibold text-slate-800 mt-0.5 block"></span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="text-slate-400 block text-[10px] font-bold uppercase">Penanggung Jawab</span>
+                            <span id="prevPic" class="font-semibold text-slate-800 mt-0.5 block"></span>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <span class="text-slate-400 block text-[10px] font-bold uppercase mb-1">Catatan Kreatif & Audio</span>
+                        <div id="prevNotes" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 leading-relaxed"></div>
+                    </div>
+                </div>
+
+                <div class="pt-5 border-t border-slate-100 mt-6 flex justify-end">
+                    <button onclick="App.closeModal('previewModal')" class="px-5 py-2 text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 rounded-xl">
+                        Tutup Preview
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 3: TAMBAH IDE BARU KE BANK IDE -->
+    <!-- ============================================================== -->
+    <div id="ideaModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-5 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                    <i class="far fa-lightbulb text-amber-500"></i> Simpan Ide Baru
+                </h3>
+                <button onclick="App.closeModal('ideaModal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Topik / Inti Ide <span class="text-red-500">*</span></label>
+                    <input type="text" id="ideaTitle" placeholder="Misal: Review mic 100 ribu vs 2 juta" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Platform Sasaran</label>
+                        <select id="ideaPlatform" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="instagram">Instagram</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="twitter">X / Twitter</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilar</label>
+                        <select id="ideaPillar" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="edukasi">Edukasi</option>
+                            <option value="tips_trik">Tips & Trik</option>
+                            <option value="promosi">Promosi</option>
+                            <option value="hiburan">Hiburan</option>
+                            <option value="behind_the_scene">Behind The Scene</option>
+                            <option value="inspirasi">Inspirasi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+                    <textarea id="ideaNotes" rows="3" placeholder="Catatan singkat angle sudut pandang konten..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 mt-4 flex items-center justify-end gap-2">
+                <button onclick="App.closeModal('ideaModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    Batal
+                </button>
+                <button onclick="App.saveNewIdea()" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition">
+                    Simpan ke Bank Ide
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="assets/app.js"></script>
+</body>
+</html>
