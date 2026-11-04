@@ -685,6 +685,7 @@ const App = {
             case 'linkedin': return 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100';
             case 'twitter': return 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200';
             case 'facebook': return 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100';
+            case 'blogspot': return 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100';
             default: return 'bg-gray-100 border-gray-200 text-gray-700';
         }
     },
@@ -1627,6 +1628,7 @@ const App = {
             case 'twitter': return 'fab fa-x-twitter';
             case 'facebook': return 'fab fa-facebook-f';
             case 'threads': return 'fab fa-threads';
+            case 'blogspot': return 'fab fa-blogger-b';
             default: return 'fas fa-share-alt';
         }
     },

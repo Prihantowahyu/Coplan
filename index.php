@@ -424,6 +424,7 @@ require_once __DIR__ . '/db.php';
                         <option value="linkedin">LinkedIn</option>
                         <option value="twitter">X / Twitter</option>
                         <option value="facebook">Facebook</option>
+                        <option value="blogspot">Blogger / Blogspot</option>
                     </select>
 
                     <!-- Status Filter -->
@@ -626,8 +627,10 @@ require_once __DIR__ . '/db.php';
                             <option value="youtube">YouTube</option>
                             <option value="linkedin">LinkedIn</option>
                             <option value="twitter">X / Twitter</option>
+                            <option value="blogspot">Blogger / Blogspot</option>
                             <option value="facebook">Facebook</option>
                             <option value="threads">Threads</option>
+                            <option value="blogspot">Blogger / Blogspot</option>
                         </select>
                     </div>
 
@@ -640,6 +643,7 @@ require_once __DIR__ . '/db.php';
                             <option value="story">Story</option>
                             <option value="thread">Thread / Text</option>
                             <option value="video_panjang">Video Panjang (16:9)</option>
+                            <option value="artikel_blog">Artikel / Blog Post</option>
                         </select>
                     </div>
 
@@ -888,6 +892,7 @@ require_once __DIR__ . '/db.php';
                             <option value="youtube">YouTube</option>
                             <option value="linkedin">LinkedIn</option>
                             <option value="twitter">X / Twitter</option>
+                            <option value="blogspot">Blogger / Blogspot</option>
                         </select>
                     </div>
 
