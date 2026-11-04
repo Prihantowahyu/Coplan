@@ -87,6 +87,10 @@ require_once __DIR__ . '/db.php';
                         <i class="fas fa-wand-magic-sparkles text-xs"></i>
                         <span>Hooks & Copy</span>
                     </button>
+                    <button data-tab="guide" class="nav-tab px-3.5 py-2 rounded-lg text-slate-600 hover:bg-slate-200/70 transition flex items-center gap-1.5">
+                        <i class="fas fa-book-open text-xs text-amber-500"></i>
+                        <span>Panduan</span>
+                    </button>
                 </nav>
 
                 <!-- Actions & Storage Badge -->
@@ -136,6 +140,7 @@ require_once __DIR__ . '/db.php';
             <button data-tab="table" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Daftar</button>
             <button data-tab="ideas" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Ide</button>
             <button data-tab="copywriting" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Hooks</button>
+            <button data-tab="guide" class="nav-tab shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">Panduan</button>
         </div>
     </header>
 
@@ -587,6 +592,198 @@ require_once __DIR__ . '/db.php';
                         <div class="font-bold text-xs text-slate-700 mb-1">🎬 Content Creator</div>
                         <div class="text-[11px] text-slate-500 line-clamp-2">#contentcreator #tipsngonten #reelsindonesia #tiktokindonesia #creatorjourney</div>
                         <button onclick="App.copyHookToClipboard('#contentcreator #tipsngonten #reelsindonesia #tiktokindonesia #videocreator #creatorjourney #socialmediatips')" class="mt-2 text-xs font-semibold text-indigo-600 hover:underline">Salin Hashtags</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- ============================================================== -->
+        <!-- TAB 7: PANDUAN PENGGUNAAN & TUTORIAL BELAJAR -->
+        <!-- ============================================================== -->
+        <div id="view-guide" class="tab-view hidden space-y-6">
+            <!-- Hero Guide Banner -->
+            <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-indigo-100/50 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <span class="px-3 py-1 rounded-full bg-white/20 text-xs font-bold uppercase tracking-wider backdrop-blur-sm text-indigo-100">
+                        📖 Pusat Pembelajaran & Panduan Pemula
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Panduan Penggunaan ContentFlow</h2>
+                    <p class="text-xs sm:text-sm text-indigo-200 max-w-2xl leading-relaxed">
+                        Pelajari cara memaksimalkan fitur ContentFlow mulai dari brainstorming ide, meracik copywriting viral, mengatur alur kerja produksi tim, hingga penjadwalan konten media sosial dan artikel Blogspot Anda.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2.5 shrink-0">
+                    <button onclick="App.openCreateModal()" class="px-5 py-2.5 rounded-xl bg-white text-indigo-900 font-bold text-xs hover:bg-indigo-50 shadow-md transition flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Buat Konten Pertama
+                    </button>
+                    <button onclick="App.exportJSON()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs backdrop-blur-sm border border-white/20 transition flex items-center gap-1.5">
+                        <i class="fas fa-download"></i> Backup Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5 Steps Quickstart Workflow -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base">Alur Kerja 5 Langkah untuk Pemula</h3>
+                        <p class="text-xs text-slate-500">Ikuti urutan ini untuk mengelola konten dengan rapi dan konsisten.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <!-- Step 1 -->
+                    <div class="p-4 bg-slate-50 hover:bg-indigo-50/50 rounded-xl border border-slate-200/80 transition flex flex-col justify-between">
+                        <div>
+                            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center mb-3">1</span>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1.5">Catat di Bank Ide</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Kumpulkan ide spontan kapan saja di tab Bank Ide. Jangan biarkan ide hilang sebelum sempat dieksekusi.</p>
+                        </div>
+                        <button onclick="App.switchTab('ideas')" class="mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-800 text-left">
+                            Buka Bank Ide &rarr;
+                        </button>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="p-4 bg-slate-50 hover:bg-indigo-50/50 rounded-xl border border-slate-200/80 transition flex flex-col justify-between">
+                        <div>
+                            <span class="w-7 h-7 rounded-full bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center mb-3">2</span>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1.5">Cari Hook Viral</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Gunakan 13 formula Hook 3 detik & framework caption AIDA/PAS di tab Hooks agar audiens tidak langsung skip.</p>
+                        </div>
+                        <button onclick="App.switchTab('copywriting')" class="mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-800 text-left">
+                            Buka Hooks & Copy &rarr;
+                        </button>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="p-4 bg-slate-50 hover:bg-indigo-50/50 rounded-xl border border-slate-200/80 transition flex flex-col justify-between">
+                        <div>
+                            <span class="w-7 h-7 rounded-full bg-amber-600 text-white font-extrabold text-xs flex items-center justify-center mb-3">3</span>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1.5">Jadwalkan Konten</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Klik tombol "+ Konten" untuk memasukkan judul, platform, pilar tema, tanggal & jam tayang, serta skrip caption.</p>
+                        </div>
+                        <button onclick="App.openCreateModal()" class="mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-800 text-left">
+                            + Buat Konten &rarr;
+                        </button>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="p-4 bg-slate-50 hover:bg-indigo-50/50 rounded-xl border border-slate-200/80 transition flex flex-col justify-between">
+                        <div>
+                            <span class="w-7 h-7 rounded-full bg-purple-600 text-white font-extrabold text-xs flex items-center justify-center mb-3">4</span>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1.5">Geser di Kanban</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Tarik & lepas kartu (drag & drop) dari tahap Ide &rarr; Scripting &rarr; Desain &rarr; Review &rarr; Siap Tayang.</p>
+                        </div>
+                        <button onclick="App.switchTab('kanban')" class="mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-800 text-left">
+                            Buka Kanban &rarr;
+                        </button>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="p-4 bg-slate-50 hover:bg-indigo-50/50 rounded-xl border border-slate-200/80 transition flex flex-col justify-between">
+                        <div>
+                            <span class="w-7 h-7 rounded-full bg-emerald-600 text-white font-extrabold text-xs flex items-center justify-center mb-3">5</span>
+                            <h4 class="font-bold text-slate-800 text-sm mb-1.5">Pantau Kalender</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Tinjau seluruh jadwal bulanan di Kalender. Klik tanggal kosong untuk langsung menambah jadwal di hari itu.</p>
+                        </div>
+                        <button onclick="App.switchTab('calendar')" class="mt-4 text-xs font-semibold text-indigo-600 hover:text-indigo-800 text-left">
+                            Buka Kalender &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khusus Blogspot & Blogger Section -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-base">
+                        <i class="fab fa-blogger-b"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base">Panduan Khusus Pengguna Blogspot / Blogger</h3>
+                        <p class="text-xs text-slate-500">Cara memaksimalkan ContentFlow untuk mengelola artikel blog Anda.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="p-4 bg-orange-50/50 rounded-xl border border-orange-100 space-y-2">
+                        <h4 class="font-bold text-xs text-orange-900 flex items-center gap-1.5">
+                            <i class="fas fa-calendar-check"></i> 1. Merencanakan Kalender Artikel Blog
+                        </h4>
+                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside leading-relaxed">
+                            <li>Saat membuat konten baru, pilih Platform: <b>Blogger / Blogspot</b> dan Format: <b>Artikel / Blog Post</b>.</li>
+                            <li>Tuliskan <b>Keyword / Kata Kunci SEO Target</b> di bagian judul artikel.</li>
+                            <li>Gunakan kolom <b>Catatan</b> untuk menyusun kerangka artikel (*H2, H3, referensi link internal*).</li>
+                            <li>Gunakan kolom <b>Hook</b> untuk merancang paragraf pembuka yang memikat pembaca agar membaca hingga selesai.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <h4 class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                            <i class="fas fa-code text-indigo-600"></i> 2. Memasang (Embed) Planner ke Halaman Blogspot
+                        </h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Anda bisa memasang aplikasi ini langsung di dalam blog Blogspot Anda (di halaman khusus/dashboard):
+                        </p>
+                        <div class="relative">
+                            <pre class="bg-slate-900 text-indigo-300 p-2.5 rounded-lg text-[11px] overflow-x-auto font-mono">&lt;iframe src="https://prihantowahyu.github.io/Coplan/" width="100%" height="800px" style="border:none; border-radius:12px;"&gt;&lt;/iframe&gt;</pre>
+                            <button onclick="App.copyHookToClipboard('&lt;iframe src=&quot;https://prihantowahyu.github.io/Coplan/&quot; width=&quot;100%&quot; height=&quot;800px&quot; style=&quot;border:none; border-radius:12px;&quot;&gt;&lt;/iframe&gt;')" class="absolute top-2 right-2 px-2 py-1 bg-white text-slate-800 text-[10px] font-bold rounded shadow-xs">
+                                Salin Kode
+                            </button>
+                        </div>
+                        <span class="text-[11px] text-slate-400 block">*Masuk ke Blogger &rarr; Halaman &rarr; Tambah Halaman Baru &rarr; Pilih mode HTML dan tempel kode di atas.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategi Pilar & Jam Posting -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Pilar Konten 80/20 -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-indigo-600"></i> Aturan Golden Ratio Konten (80 : 20)
+                    </h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Agar akun Anda tidak dianggap akun jualan yang membosankan oleh audiens, gunakan pembagian pilar ini:
+                    </p>
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-between">
+                            <span class="font-semibold text-blue-900">📚 80% Konten Value (Edukasi, Tips, Hiburan)</span>
+                            <span class="font-bold text-blue-700">Followers & Trust</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-red-50 border border-red-100 flex items-center justify-between">
+                            <span class="font-semibold text-red-900">🏷️ 20% Konten Jualan & Promosi</span>
+                            <span class="font-bold text-red-700">Penjualan / Cuan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jam Terbaik Posting -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="far fa-clock text-emerald-600"></i> Rekomendasi Jam Tayang Terbaik (WIB)
+                    </h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="font-bold text-slate-800 block">📱 Instagram & TikTok</span>
+                            <span class="text-slate-500 text-[11px]">12.00 - 13.00 & 19.00 - 21.00</span>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="font-bold text-slate-800 block">💼 LinkedIn</span>
+                            <span class="text-slate-500 text-[11px]">08.00 - 10.00 & 17.00 - 18.00</span>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="font-bold text-slate-800 block">🎥 YouTube</span>
+                            <span class="text-slate-500 text-[11px]">15.00 - 17.00 (Hari Kerja)</span>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="font-bold text-slate-800 block">📝 Blogspot / Artikel</span>
+                            <span class="text-slate-500 text-[11px]">09.00 - 11.00 & 14.00 - 16.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
